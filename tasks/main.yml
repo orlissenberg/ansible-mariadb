@@ -1,0 +1,9 @@
+---
+# tasks file for mariadb
+
+# Wheezy
+- include: main-debian7.yml
+  when: ansible_distribution == 'Debian'
+        and ansible_distribution_major_version == '7'
+
+- apt: name=phpmyadmin state=present
