@@ -1,0 +1,38 @@
+---
+
+- apt: name=phpmyadmin state=present
+
+- mysql_user: name=phpmyadmin password="{{ mariadb_phpmyadmin_password }}"
+  when: not (mariadb_phpmyadmin_password is undefined or mariadb_phpmyadmin_password|trim == "")
+
+- mysql_user: name=pma password="{{ mariadb_phpmyadmin_pw_controluser }}" priv=mysql.*:SELECT/phpmyadmin.*:ALL
+  when: not (mariadb_phpmyadmin_pw_controluser is undefined or mariadb_phpmyadmin_pw_controluser|trim == "")
+
+- template: src=phpmyadmin.nginx.conf.j2 dest=/etc/nginx/sites-available/phpmyadmin.conf
+
+- template: src=phpmyadmin.config.php.j2 dest=/etc/phpmyadmin/config.inc.php
+
+# An X.509 certificate (currently X.509v3) acts as a container for the public key that may be used to verify or
+# validate an end entity (EE) such as a web site or an LDAP server. The entity is defined in the subject field
+# of the certificate. The subject is described in the form of a Distinguished Name (DN) - backgrounder about
+# DNs in LDAP - which is comprised of a number of Relative Distinguished Names (RDNs) each of which is a
+# data-containing element called an Attribute. Specifically, the CN (commonName) attribute (RDN) of the Distinguished
+# Name typically contains the end-entity covered by the certificate. An example of a CN may be a web site address
+# such as CN=www.example.com. A full subject DN may contain one or more of the following RDNs CN= (commonName, the
+# end-entity being covered, example, a website or www.example.com), C= (country), ST= (state or province within
+# country), L= (location , nominally an address but ambiguously used except in EV certificates where it is rigorously
+# defined), OU= (organizationalUnitName, a company division name or similar sub-structure), O= (organizationName,
+# typically a company name).
+
+- shell: openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/phpmyadmin/cert.key -out /etc/phpmyadmin/cert.crt
+         -subj "/C=NL/ST=ZH/L=Rotterdam/O=IT/CN={{ inventory_hostname }}"
+  args:
+    creates: /etc/phpmyadmin/cert.key
+
+- file: src=/etc/nginx/sites-available/phpmyadmin.conf dest=/etc/nginx/sites-enabled/phpmyadmin.conf
+  args:
+    owner: root
+    group: root
+    state: link
+
+- service: name=nginx state=restarted

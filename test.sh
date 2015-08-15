@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
-#sudo service mysql status
-#sudo apt-get remove --purge mariadb-server python-mysqldb -y
-#sudo rm -R /var/lib/mysql
-#sudo rm -R /var/log/mysql*
+#dpkg -l | grep maria
+#sudo apt-get remove --purge mariadb-server-10.0 mariadb-common phpmyadmin python-mysqldb -y
 #sudo nano /root/.my.cnf
+#mysql -u root -p --execute="SELECT User,Host,Password FROM mysql.user;"
 
 CURRENT_DIR=${PWD}
 TMP_DIR=/tmp/ansible-test
@@ -20,7 +19,10 @@ EOF
 mkdir -p $TMP_DIR/group_vars 2> /dev/null
 cat << EOF > $TMP_DIR/group_vars/webservers
 
-mariadb_root_password: "ohhi"
+mariadb_root_password: "i_am_root"
+mariadb_phpmyadmin_pw: "i_am_admin"
+mariadb_phpmyadmin_pw_controluser: "i_am_control"
+mariadb_phpmyadmin_install: true
 
 EOF
 
@@ -57,3 +59,5 @@ ansible-playbook $TMP_DIR/playbook.yml -i $TMP_DIR/hosts
  	|| (echo 'Idempotence test: fail' && exit 1)
 
 updatedb
+
+sudo service mysql status

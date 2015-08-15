@@ -2,3 +2,8 @@
 # defaults file for mariadb
 
 mariadb_root_password: ""
+mariadb_sock: "/var/run/mysqld/mysqld.sock"
+
+mariadb_phpmyadmin_install: False
+mariadb_phpmyadmin_pw: ""
+mariadb_phpmyadmin_pw_controluser: ""

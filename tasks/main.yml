@@ -6,4 +6,35 @@
   when: ansible_distribution == 'Debian'
         and ansible_distribution_major_version == '7'
 
-- apt: name=phpmyadmin state=present
+- template: src="my.cnf.j2" dest="/etc/mysql/my.cnf" owner=root group=root mode=0644
+  notify: restart-mysql
+
+- name: Update MariaDB root user password
+  mysql_user: check_implicit_admin=False name=root host="{{ item }}" password="{{ mariadb_root_password }}"
+  when: not (mariadb_root_password is undefined or mariadb_root_password|trim == "")
+  with_items:
+    - "::1"
+    - "localhost"
+    - "127.0.0.1"
+    - "{{ inventory_hostname }}"
+    - "{{ inventory_hostname_short }}"
+
+- name: Copy .my.cnf file to root home
+  template: src=root.cnf.j2 dest=/root/.my.cnf owner=root group=root mode=0600 force=yes
+  when: not (mariadb_root_password is undefined or mariadb_root_password|trim == "")
+
+- name: Update MariaDB root user password when root/nopassword allowed
+  mysql_user: check_implicit_admin=True name=root password="{{ mariadb_root_password }}"
+
+- mysql_user: login_user=root login_password="{{ mariadb_root_password }}" host={{ item }} name='' state=absent
+  with_items:
+    - "::1"
+    - "localhost"
+    - "127.0.0.1"
+    - "{{ inventory_hostname }}"
+    - "{{ inventory_hostname_short }}"
+
+- include: phpmyadmin.yml
+  when: mariadb_phpmyadmin_install == true
+
+- service: name=mysql state=started enabled=yes
