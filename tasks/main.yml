@@ -18,6 +18,7 @@
     - "127.0.0.1"
     - "{{ inventory_hostname }}"
     - "{{ inventory_hostname_short }}"
+  ignore_errors: yes
 
 - name: Copy .my.cnf file to root home
   template: src=root.cnf.j2 dest=/root/.my.cnf owner=root group=root mode=0600 force=yes
@@ -36,5 +37,8 @@
 
 - include: phpmyadmin.yml
   when: mariadb_phpmyadmin_install == true
+
+- include: percona.yml
+  when: percona_install == true
 
 - service: name=mysql state=started enabled=yes
