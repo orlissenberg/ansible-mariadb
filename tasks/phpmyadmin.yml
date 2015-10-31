@@ -2,8 +2,8 @@
 
 - apt: name=phpmyadmin state=present
 
-- mysql_user: name=phpmyadmin password="{{ mariadb_phpmyadmin_password }}"
-  when: not (mariadb_phpmyadmin_password is undefined or mariadb_phpmyadmin_password|trim == "")
+- mysql_user: name=phpmyadmin password="{{ mariadb_phpmyadmin_pw }}"
+  when: not (mariadb_phpmyadmin_pw is undefined or mariadb_phpmyadmin_pw|trim == "")
 
 - mysql_user: name=pma password="{{ mariadb_phpmyadmin_pw_controluser }}" priv=mysql.*:SELECT/phpmyadmin.*:ALL
   when: not (mariadb_phpmyadmin_pw_controluser is undefined or mariadb_phpmyadmin_pw_controluser|trim == "")
