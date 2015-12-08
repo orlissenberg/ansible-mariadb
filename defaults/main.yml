@@ -6,10 +6,11 @@ mariadb_sock: "/var/run/mysqld/mysqld.sock"
 mariadb_user: root
 mariadb_group: root
 
+mariadb_php_major_version: 7
 mariadb_phpmyadmin_install: False
 mariadb_phpmyadmin_pw: ""
 mariadb_phpmyadmin_pw_controluser: ""
 
-percona_install: False
-percona_version: "2.2.15"
-percona_build_path: "/tmp/percona-toolkit-{{ percona_version }}"
+mariadb_percona_install: False
+mariadb_percona_version: "2.2.16"
+mariadb_percona_build_path: "/tmp/percona-toolkit-{{ mariadb_percona_version }}"

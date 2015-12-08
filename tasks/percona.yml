@@ -2,8 +2,9 @@
 
 # Install the Percona Toolkit
 # https://www.percona.com/doc/percona-toolkit/2.2/index.html
+# https://www.percona.com/downloads/percona-toolkit/
 
-- get_url: url=http://percona.com/get/percona-toolkit.tar.gz mode=0644
+- get_url: url=https://www.percona.com/downloads/percona-toolkit/2.2.16/tarball/percona-toolkit-2.2.16.tar.gz mode=0644
   args:
     dest: /tmp/percona-toolkit.tar.gz
 
@@ -19,10 +20,10 @@
 
 # tar --exclude="*/*" -tf /tmp/percona-toolkit.tar.gz ﻿| sed -e "s/\///g" | head -1
 
-- shell: perl Makefile.PL chdir={{ percona_build_path }}
-- shell: make chdir={{ percona_build_path }}
-- shell: make test chdir={{ percona_build_path }}
-- shell: make install chdir={{ percona_build_path }}
+- shell: perl Makefile.PL chdir={{ mariadb_percona_build_path }}
+- shell: make chdir={{ mariadb_percona_build_path }}
+- shell: make test chdir={{ mariadb_percona_build_path }}
+- shell: make install chdir={{ mariadb_percona_build_path }}
 
 # Example command:
 # ﻿sudo /usr/local/bin/pt-summary
