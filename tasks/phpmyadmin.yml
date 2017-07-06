@@ -1,6 +1,34 @@
 ---
 
-- apt: name=phpmyadmin state=present
+- shell: "echo \"{{ mariadb_phpmyadmin_sha256 }}  phpMyAdmin-{{ mariadb_phpmyadmin_version }}-all-languages.tar.gz\" > phpMyAdmin-{{ mariadb_phpmyadmin_version }}-all-languages.tar.gz.sha256"
+  args:
+    chdir: /tmp
+
+- name: Download phpmyadmin
+  get_url: url=https://files.phpmyadmin.net/phpMyAdmin/{{ mariadb_phpmyadmin_version }}/phpMyAdmin-{{ mariadb_phpmyadmin_version }}-all-languages.tar.gz mode=0644
+  args:
+    dest: /tmp/phpMyAdmin-{{ mariadb_phpmyadmin_version }}-all-languages.tar.gz
+
+- name: checksum sha256
+  shell: sha256sum phpMyAdmin-{{ mariadb_phpmyadmin_version }}-all-languages.tar.gz.sha256 -c
+  args:
+    chdir: /tmp
+
+- name: Unarchive phpmyadmin
+  unarchive:
+    src: "/tmp/phpMyAdmin-{{ mariadb_phpmyadmin_version }}-all-languages.tar.gz"
+  args:
+    copy: no
+    group: "{{ mariadb_group }}"
+    owner: "{{ mariadb_user }}"
+    dest: "{{ mariadb_phpmyadmin_build_path }}"
+
+- name: remove old phpmyadmin
+  shell: rm /usr/share/phpmyadmin -R
+  ignore_errors: yes
+
+- name: move phpmyadmin to /usr/share/phpmyadmin
+  shell: mv /tmp/phpMyAdmin-4.7.2-all-languages /usr/share/phpmyadmin
 
 - mysql_user: name=phpmyadmin password="{{ mariadb_phpmyadmin_pw }}"
   when: not (mariadb_phpmyadmin_pw is undefined or mariadb_phpmyadmin_pw|trim == "")
@@ -24,8 +52,7 @@
 # defined), OU= (organizationalUnitName, a company division name or similar sub-structure), O= (organizationName,
 # typically a company name).
 
-- shell: openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/phpmyadmin/cert.key -out /etc/phpmyadmin/cert.crt
-         -subj "/C=NL/ST=ZH/L=Rotterdam/O=IT/CN={{ inventory_hostname }}"
+- shell: "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/phpmyadmin/cert.key -out /etc/phpmyadmin/cert.crt -subj \"/C=NL/ST=ZH/L=Rotterdam/O=IT/CN={{ inventory_hostname }}\""
   args:
     creates: /etc/phpmyadmin/cert.key
 

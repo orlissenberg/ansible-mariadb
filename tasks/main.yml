@@ -1,11 +1,6 @@
 ---
 # tasks file for mariadb
 
-# Wheezy
-- include: main-debian7.yml
-  when: ansible_distribution == 'Debian'
-        and ansible_distribution_major_version == '7'
-
 # Jessie
 - include: main-debian8.yml
   when: ansible_distribution == 'Debian'
@@ -19,13 +14,13 @@
 - name: Update MariaDB root user password
   mysql_user: check_implicit_admin=False name=root host="{{ item }}" password="{{ mariadb_root_password }}"
   when: not (mariadb_root_password is undefined or mariadb_root_password|trim == "")
+  ignore_errors: yes
   with_items:
     - "::1"
-    - "localhost"
-    - "127.0.0.1"
     - "{{ inventory_hostname }}"
     - "{{ inventory_hostname_short }}"
-  ignore_errors: yes
+    - "localhost"
+    - "127.0.0.1"
 
 - name: Copy .my.cnf file to root home
   template: src=root.cnf.j2 dest=/root/.my.cnf owner=root group=root mode=0600 force=yes
@@ -38,15 +33,14 @@
 - mysql_user: login_user=root login_password="{{ mariadb_root_password }}" host={{ item }} name='' state=absent
   with_items:
     - "::1"
-    - "localhost"
-    - "127.0.0.1"
     - "{{ inventory_hostname }}"
     - "{{ inventory_hostname_short }}"
+    - "localhost"
+    - "127.0.0.1"
 
 # PHPMyAdmin
-# Current package has PHP5 dependencies.
 - include: phpmyadmin.yml
-  when: mariadb_phpmyadmin_install == true and mariadb_php_major_version == 5
+  when: mariadb_phpmyadmin_install == true
 
 # Percona tools
 - include: percona.yml

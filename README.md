@@ -6,7 +6,7 @@ Install and configure MariaDB 10 with Ansible.
 Requirements
 ------------
 
-Debian 7
+Debian 8
 
 Role Variables
 --------------

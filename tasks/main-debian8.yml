@@ -6,7 +6,7 @@
 - apt_key: keyserver=keyserver.ubuntu.com id=0xcbcb082a1bb943db
 
 # http://docs.ansible.com/ansible/apt_repository_module.html
-- apt_repository: repo='deb [arch=amd64,i386] http://ams2.mirrors.digitalocean.com/mariadb/repo/10.1/debian jessie main' state=present update_cache=yes
+- apt_repository: repo='deb [arch=amd64,i386] http://mirrors.supportex.net/mariadb/repo/10.2/debian jessie main' state=present update_cache=yes
 
 - apt: name={{ item }} state=present
   with_items:

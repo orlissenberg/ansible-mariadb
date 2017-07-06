@@ -1,29 +1,48 @@
 ---
 
 # Install the Percona Toolkit
-# https://www.percona.com/doc/percona-toolkit/2.2/index.html
-# https://www.percona.com/downloads/percona-toolkit/
+# https://www.percona.com/doc/percona-toolkit/3.0/index.html
 
-- get_url: url=https://www.percona.com/downloads/percona-toolkit/2.2.16/tarball/percona-toolkit-2.2.16.tar.gz mode=0644
+- name: Install Percona toolkit dependencies
+  apt: name={{ item }} state=present
+  with_items:
+    - perl
+    - perl-doc
+    - tar
+
+- name: Download Percona toolkit
+  get_url: url=http://percona.com/get/percona-toolkit.tar.gz mode=0644
   args:
     dest: /tmp/percona-toolkit.tar.gz
 
-- unarchive: src=/tmp/percona-toolkit.tar.gz dest=/tmp
-  args:
-    copy: no
-    group: "{{ mariadb_group }}"
-    owner: "{{ mariadb_user }}"
+- file:
+    path: "{{ percona_build_path }}"
+    state: directory
+    mode: 0755
 
-- apt: name={{ item }} state=present
-  with_items:
-    - perl
+- name: Unarchive Percona toolkit
+  unarchive:
+    src: "/tmp/percona-toolkit.tar.gz"
+  args:
+    extra_opts: ['--strip-components=1', '--show-stored-names']
+    copy: no
+    group: "{{ mysql_group }}"
+    owner: "{{ mysql_user }}"
+    dest: "{{ percona_build_path }}"
 
 # tar --exclude="*/*" -tf /tmp/percona-toolkit.tar.gz ﻿| sed -e "s/\///g" | head -1
 
-- shell: perl Makefile.PL chdir={{ mariadb_percona_build_path }}
-- shell: make chdir={{ mariadb_percona_build_path }}
-- shell: make test chdir={{ mariadb_percona_build_path }}
-- shell: make install chdir={{ mariadb_percona_build_path }}
+- name: Compile Percona toolkit from source step 1.
+  shell: "perl Makefile.PL chdir={{ percona_build_path }}"
+
+- name: Compile Percona toolkit from source step 2.
+  shell: "make chdir={{ percona_build_path }}"
+
+- name: Compile Percona toolkit from source step 3.
+  shell: "make test chdir={{ percona_build_path }}"
+
+- name: Compile Percona toolkit from source step 4.
+  shell: "make install chdir={{ percona_build_path }}"
 
 # Example command:
 # ﻿sudo /usr/local/bin/pt-summary

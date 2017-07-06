@@ -6,11 +6,14 @@ mariadb_sock: "/var/run/mysqld/mysqld.sock"
 mariadb_user: root
 mariadb_group: root
 
-mariadb_php_major_version: 7
+mariadb_phpmyadmin_version: 4.7.2
+mariadb_phpmyadmin_sha256: "53bad6e63998732db704be45f1ea106cf26be23cf025922e5b2249e7709abc4f"
+mariadb_phpmyadmin_build_path: "/tmp"
 mariadb_phpmyadmin_install: False
 mariadb_phpmyadmin_pw: ""
 mariadb_phpmyadmin_pw_controluser: ""
+mariadb_phpmyadmin_phpsock: "/var/run/php/php7.1-fpm.sock"
 
 mariadb_percona_install: False
-mariadb_percona_version: "2.2.16"
+mariadb_percona_version: "3.0.3"
 mariadb_percona_build_path: "/tmp/percona-toolkit-{{ mariadb_percona_version }}"
