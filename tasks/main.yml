@@ -1,24 +1,5 @@
 ---
-# tasks file for mariadb
-
-#- name: Create config.inc.php
-#  template: src="phpmyadmin.config.php.j2" dest="/usr/share/phpmyadmin/config.inc.php"
-#
-#- name: Create /var/lib/mysql directory
-#  file: path="/var/lib/mysql" recurse=yes state=directory mode="u=rwx,g=rwx,o=rx"
-#  args:
-#    group: "{{ mariadb_group }}"
-#    owner: "{{ mariadb_user }}"
-#
-#- name: Restart nginx
-#  service: name=nginx state=restarted
-#
-#- name: Restart mariadb
-#  service: name=mariadb state=restarted
-#
-#- meta: end_play
-#  when: mariadb_end_play == true
-#
+# tasks file for MariaDB
 
 # Jessie
 - include: main-debian8.yml
