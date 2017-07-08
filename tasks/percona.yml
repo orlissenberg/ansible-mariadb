@@ -15,7 +15,8 @@
   args:
     dest: /tmp/percona-toolkit.tar.gz
 
-- file:
+- name: Create the Percona build path
+  file:
     path: "{{ percona_build_path }}"
     state: directory
     mode: 0755

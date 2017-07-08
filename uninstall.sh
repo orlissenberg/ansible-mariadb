@@ -10,7 +10,7 @@ exit 1
 service mariadb stop
 systemctl disable mariadb
 
-apt-get remove --purge python-mysqldb mariadb-server-10.2 -y
+apt-get remove --purge mariadb-server-10.2 mariadb-server-core-10.2 mariadb-client-10.2 mariadb-client-core-10.2 -y
 
 rm /var/lib/mysql -R 2> /dev/null
 
@@ -25,8 +25,6 @@ rm /etc/mysql/my.cnf 2> /dev/null
 #cd /tmp/percona-toolkit-3.0.3
 #sudo make uninstall
 
-unlink /usr/local/bin/glide 2> /dev/null
-unlink /usr/local/bin/govendor 2> /dev/null
 unlink /usr/local/bin/pt-align 2> /dev/null
 unlink /usr/local/bin/pt-archiver 2> /dev/null
 unlink /usr/local/bin/pt-config-diff 2> /dev/null
@@ -61,8 +59,6 @@ unlink /usr/local/bin/pt-table-usage 2> /dev/null
 unlink /usr/local/bin/pt-upgrade 2> /dev/null
 unlink /usr/local/bin/pt-variable-advisor 2> /dev/null
 unlink /usr/local/bin/pt-visual-explain 2> /dev/null
-unlink /usr/local/man/man1/glide.1p 2> /dev/null
-unlink /usr/local/man/man1/govendor.1p 2> /dev/null
 unlink /usr/local/man/man1/percona-toolkit.1p 2> /dev/null
 unlink /usr/local/man/man1/pt-align.1p 2> /dev/null
 unlink /usr/local/man/man1/pt-archiver.1p 2> /dev/null

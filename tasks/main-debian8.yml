@@ -3,13 +3,19 @@
 # https://downloads.mariadb.org/mariadb/repositories/#mirror=digitalocean-ams&distro=Debian&distro_release=jessie--jessie&version=10.1
 
 # http://docs.ansible.com/ansible/apt_key_module.html
-- apt_key: keyserver=keyserver.ubuntu.com id=0xcbcb082a1bb943db
+- name: Add mariadb repository key
+  apt_key: keyserver=keyserver.ubuntu.com id=0xcbcb082a1bb943db
 
 # http://docs.ansible.com/ansible/apt_repository_module.html
-- apt_repository: repo='deb [arch=amd64,i386] http://mirrors.supportex.net/mariadb/repo/10.2/debian jessie main' state=present update_cache=yes
+- name: Add mariadb repository
+  apt_repository: repo='deb [arch=amd64,i386] http://mirrors.supportex.net/mariadb/repo/10.2/debian jessie main' state=present update_cache=yes
 
-- apt: name={{ item }} state=present
+- name: Install mariadb-server with dependencies
+  apt: name={{ item }} state=present
   with_items:
     - python-software-properties
-    - mariadb-server
     - python-mysqldb
+    - mariadb-server-10.2
+    - mariadb-server-core-10.2
+    - mariadb-client-10.2
+    - mariadb-client-core-10.2

@@ -1,6 +1,7 @@
 ---
 
-- shell: "echo \"{{ mariadb_phpmyadmin_sha256 }}  phpMyAdmin-{{ mariadb_phpmyadmin_version }}-all-languages.tar.gz\" > phpMyAdmin-{{ mariadb_phpmyadmin_version }}-all-languages.tar.gz.sha256"
+- name: Create sha256 checksum file
+  shell: "echo \"{{ mariadb_phpmyadmin_sha256 }}  phpMyAdmin-{{ mariadb_phpmyadmin_version }}-all-languages.tar.gz\" > phpMyAdmin-{{ mariadb_phpmyadmin_version }}-all-languages.tar.gz.sha256"
   args:
     chdir: /tmp
 
@@ -9,7 +10,7 @@
   args:
     dest: /tmp/phpMyAdmin-{{ mariadb_phpmyadmin_version }}-all-languages.tar.gz
 
-- name: checksum sha256
+- name: Checksum sha256
   shell: sha256sum phpMyAdmin-{{ mariadb_phpmyadmin_version }}-all-languages.tar.gz.sha256 -c
   args:
     chdir: /tmp
@@ -23,22 +24,26 @@
     owner: "{{ mariadb_user }}"
     dest: "{{ mariadb_phpmyadmin_build_path }}"
 
-- name: remove old phpmyadmin
+- name: Remove old phpmyadmin
   shell: rm /usr/share/phpmyadmin -R
   ignore_errors: yes
 
-- name: move phpmyadmin to /usr/share/phpmyadmin
+- name: Move phpmyadmin to /usr/share/phpmyadmin
   shell: mv /tmp/phpMyAdmin-4.7.2-all-languages /usr/share/phpmyadmin
 
-- mysql_user: name=phpmyadmin password="{{ mariadb_phpmyadmin_pw }}"
+- name: Create phpmyadmin user
+  mysql_user: name=phpmyadmin password="{{ mariadb_phpmyadmin_pw }}"
   when: not (mariadb_phpmyadmin_pw is undefined or mariadb_phpmyadmin_pw|trim == "")
 
-- mysql_user: name=pma password="{{ mariadb_phpmyadmin_pw_controluser }}" priv=mysql.*:SELECT/phpmyadmin.*:ALL
+- name: Create PMA user
+  mysql_user: name=pma password="{{ mariadb_phpmyadmin_pw_controluser }}" priv=mysql.*:SELECT/phpmyadmin.*:ALL
   when: not (mariadb_phpmyadmin_pw_controluser is undefined or mariadb_phpmyadmin_pw_controluser|trim == "")
 
-- template: src=phpmyadmin.nginx.conf.j2 dest=/etc/nginx/sites-available/phpmyadmin.conf
+- name: Create nginx phpmyadmin.conf
+  template: src=phpmyadmin.nginx.conf.j2 dest=/etc/nginx/sites-available/phpmyadmin.conf
 
-- template: src=phpmyadmin.config.php.j2 dest=/etc/phpmyadmin/config.inc.php
+- name: Create phpmyadmin.inc.php
+  template: src="phpmyadmin.config.php.j2" dest="/usr/share/phpmyadmin/config.inc.php"
 
 # An X.509 certificate (currently X.509v3) acts as a container for the public key that may be used to verify or
 # validate an end entity (EE) such as a web site or an LDAP server. The entity is defined in the subject field
@@ -52,14 +57,20 @@
 # defined), OU= (organizationalUnitName, a company division name or similar sub-structure), O= (organizationName,
 # typically a company name).
 
-- shell: "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/phpmyadmin/cert.key -out /etc/phpmyadmin/cert.crt -subj \"/C=NL/ST=ZH/L=Rotterdam/O=IT/CN={{ inventory_hostname }}\""
+- name: Create etc directory
+  file: path="/etc/phpmyadmin" recurse=yes state=directory mode="u=rw,g=r,o=r"
+
+- name: Create SSL keys for phpmyadmin
+  shell: "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/phpmyadmin/cert.key -out /etc/phpmyadmin/cert.crt -subj \"/C=NL/ST=ZH/L=Rotterdam/O=IT/CN={{ inventory_hostname }}\""
   args:
     creates: /etc/phpmyadmin/cert.key
 
-- file: src=/etc/nginx/sites-available/phpmyadmin.conf dest=/etc/nginx/sites-enabled/phpmyadmin.conf
+- name: Enable nginx phpmyadmin site
+  file: src=/etc/nginx/sites-available/phpmyadmin.conf dest=/etc/nginx/sites-enabled/phpmyadmin.conf
   args:
     owner: root
     group: root
     state: link
 
-- service: name=nginx state=restarted
+- name: Restart nginx
+  service: name=nginx state=restarted
