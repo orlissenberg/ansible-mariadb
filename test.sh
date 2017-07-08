@@ -24,6 +24,7 @@ mariadb_root_password: "i_am_root"
 mariadb_phpmyadmin_pw: "i_am_admin"
 mariadb_phpmyadmin_pw_controluser: "i_am_control"
 mariadb_phpmyadmin_install: true
+# mariadb_disable_user_management: true
 
 EOF
 

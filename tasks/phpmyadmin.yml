@@ -33,16 +33,16 @@
 
 - name: Create phpmyadmin user
   mysql_user: name=phpmyadmin password="{{ mariadb_phpmyadmin_pw }}"
-  when: not (mariadb_phpmyadmin_pw is undefined or mariadb_phpmyadmin_pw|trim == "")
+  when: (not (mariadb_phpmyadmin_pw is undefined or mariadb_phpmyadmin_pw|trim == "")) and (mariadb_disable_user_management == false)
 
 - name: Create PMA user
   mysql_user: name=pma password="{{ mariadb_phpmyadmin_pw_controluser }}" priv=mysql.*:SELECT/phpmyadmin.*:ALL
-  when: not (mariadb_phpmyadmin_pw_controluser is undefined or mariadb_phpmyadmin_pw_controluser|trim == "")
+  when: not (mariadb_phpmyadmin_pw_controluser is undefined or mariadb_phpmyadmin_pw_controluser|trim == "") and (mariadb_disable_user_management == false)
 
 - name: Create nginx phpmyadmin.conf
   template: src=phpmyadmin.nginx.conf.j2 dest=/etc/nginx/sites-available/phpmyadmin.conf
 
-- name: Create phpmyadmin.inc.php
+- name: Create config.inc.php
   template: src="phpmyadmin.config.php.j2" dest="/usr/share/phpmyadmin/config.inc.php"
 
 # An X.509 certificate (currently X.509v3) acts as a container for the public key that may be used to verify or

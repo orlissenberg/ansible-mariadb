@@ -8,14 +8,34 @@
 
 # http://docs.ansible.com/ansible/apt_repository_module.html
 - name: Add mariadb repository
-  apt_repository: repo='deb [arch=amd64,i386] http://mirrors.supportex.net/mariadb/repo/10.2/debian jessie main' state=present update_cache=yes
+  apt_repository: repo='deb [arch=amd64,i386,ppc64el] http://ftp.nluug.nl/db/mariadb/repo/10.1/debian jessie main' state=present update_cache=yes
 
 - name: Install mariadb-server with dependencies
   apt: name={{ item }} state=present
   with_items:
+    - software-properties-common
     - python-software-properties
+    - mariadb-server-10.1
+    - mariadb-server-core-10.1
+    - mariadb-client-10.1
+    - mariadb-client-core-10.1
+    - libmariadbclient-dev
+
+- name: Remove python-mysqldb, will force-install via pip.
+  apt: name={{ item }} state=absent
+  with_items:
     - python-mysqldb
-    - mariadb-server-10.2
-    - mariadb-server-core-10.2
-    - mariadb-client-10.2
-    - mariadb-client-core-10.2
+
+- name: Force install the MySQL-python through pip
+  pip:
+    name: "{{ item }}"
+    state: forcereinstall
+  with_items:
+    - pip
+    - MySQL-python
+
+- name: Create /var/lib/mysql directory
+  file: path="/var/lib/mysql" recurse=yes state=directory mode="u=rwx,g=rwx,o=rx"
+  args:
+    group: "{{ mariadb_group }}"
+    owner: "{{ mariadb_user }}"

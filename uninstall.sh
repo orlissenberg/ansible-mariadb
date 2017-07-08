@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-echo "Are you sure? Got backups?"
-exit 1
+#echo "Are you sure? Got backups?"
+#exit 1
 
 # apt list --installed | grep mysql
 # apt list --installed | grep apache
@@ -10,7 +10,29 @@ exit 1
 service mariadb stop
 systemctl disable mariadb
 
+# sudo apt-get -f install mariadb-server-10.2 mariadb-server-core-10.2 mariadb-client-10.2 mariadb-client-core-10.2 -y
+# sudo apt-get -f install
 apt-get remove --purge mariadb-server-10.2 mariadb-server-core-10.2 mariadb-client-10.2 mariadb-client-core-10.2 -y
+# apt-get remove --purge python-mysqldb python-software-properties
+
+#
+# check installed python mysqldb package
+# ﻿sudo apt list --installed | grep python-mysqldb
+# sudo apt-get install --reinstall python-mysqldb
+
+# Issue 1: "﻿the python mysqldb module is required"
+# Issue 2: "mysql_config: not found"
+# Issue 3: Cannot compile Python adapters against MariaDB 10.2.6 - mysqlclient-python or MySQL-python
+# https://jira.mariadb.org/browse/CONC-259?page=com.atlassian.jira.plugin.system.issuetabpanels%3Aworklog-tabpanel
+#
+# "mySQLdb is a python interface for mysql, but it is not mysql itself.
+# And apparently mySQLdb needs the command 'mysql_config', so you need to install that first."
+#
+# sudo apt-get install libmariadbclient-dev -> for mysql_config support
+# sudo apt-get remove python-mysqldb -y
+# ﻿sudo apt-get install libmariadbclient-dev
+# ﻿sudo pip install --force-reinstall MySQL-python
+#
 
 rm /var/lib/mysql -R 2> /dev/null
 

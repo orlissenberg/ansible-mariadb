@@ -1,6 +1,25 @@
 ---
 # tasks file for mariadb
 
+#- name: Create config.inc.php
+#  template: src="phpmyadmin.config.php.j2" dest="/usr/share/phpmyadmin/config.inc.php"
+#
+#- name: Create /var/lib/mysql directory
+#  file: path="/var/lib/mysql" recurse=yes state=directory mode="u=rwx,g=rwx,o=rx"
+#  args:
+#    group: "{{ mariadb_group }}"
+#    owner: "{{ mariadb_user }}"
+#
+#- name: Restart nginx
+#  service: name=nginx state=restarted
+#
+#- name: Restart mariadb
+#  service: name=mariadb state=restarted
+#
+#- meta: end_play
+#  when: mariadb_end_play == true
+#
+
 # Jessie
 - include: main-debian8.yml
   when: ansible_distribution == 'Debian'
@@ -14,7 +33,7 @@
 # Root user
 - name: Update MariaDB root user password
   mysql_user: check_implicit_admin=no name=root host="{{ item }}" password="{{ mariadb_root_password }}"
-  when: not (mariadb_root_password is undefined or mariadb_root_password|trim == "")
+  when: (not (mariadb_root_password is undefined or mariadb_root_password|trim == "")) and (mariadb_disable_user_management == false)
   ignore_errors: yes
   with_items:
     - "::1"
@@ -29,6 +48,7 @@
 
 - name: Update MariaDB root user password when root/nopassword allowed
   mysql_user: check_implicit_admin=yes name=root password="{{ mariadb_root_password }}"
+  when: mariadb_disable_user_management == false
 
 # Remove local
 - name: Set root password
@@ -39,6 +59,7 @@
     - "{{ inventory_hostname_short }}"
     - "localhost"
     - "127.0.0.1"
+  when: mariadb_disable_user_management == false
 
 # PHPMyAdmin
 - include: phpmyadmin.yml
@@ -50,4 +71,4 @@
 
 # Start
 - name: Start the mariadb service
-  service: name=mysql state=started enabled=yes
+  service: name=mariadb state=started enabled=yes
